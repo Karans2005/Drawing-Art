@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>DocuSign Studio — React Signature Suite</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                     radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                     linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --glass-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.35);
+      --border-color: #e2e8f0;
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 40px 16px;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.5;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 40px;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--glass-shadow);
+      border: 1px solid var(--glass-border);
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .header { margin-bottom: 28px; text-align: left; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      background: rgba(37, 99, 235, 0.1); color: var(--primary);
+      border-radius: 20px; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;
+    }
+    h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800;
+      letter-spacing: -0.025em; margin-bottom: 6px;
+    }
+    p.subtitle { color: var(--text-muted); font-size: 15px; }
+
+    .controls-card {
+      background: #ffffff; padding: 20px; border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color); margin-bottom: 24px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    .control-header { display: flex; justify-content: space-between; align-items: center; }
+    label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .input-wrapper { display: flex; align-items: center; gap: 8px; }
+    
+    .sizeInput {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm); font-family: inherit; font-size: 14px;
+      font-weight: 600; outline: none; transition: all 0.2s ease; background: #f8fafc;
+    }
+    .sizeInput:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px var(--primary-glow); }
+    input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: #e2e8f0; accent-color: var(--primary); cursor: pointer; }
+    
+    .color-picker-wrapper { display: flex; align-items: center; gap: 10px; }
+    input[type="color"] {
+      -webkit-appearance: none; border: none; width: 36px; height: 36px;
+      border-radius: 50%; cursor: pointer; background: none; transition: transform 0.2s ease;
+    }
+    input[type="color"]:hover { transform: scale(1.1); }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+
+    .canvas-container { width: 100%; max-width: 100%; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+    .canvas-wrap {
+      position: relative; border: 2px dashed #cbd5e1; border-radius: var(--radius-lg);
+      overflow: hidden; background: #ffffff; display: block; width: 100%; transition: all 0.3s ease;
+    }
+    .canvas-wrap:hover { border-color: var(--primary); box-shadow: 0 12px 28px -5px var(--primary-glow); }
+    .canvas-hint {
+      position: absolute; top: 12px; right: 16px; font-size: 11px; font-weight: 600;
+      color: #94a3b8; pointer-events: none; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    canvas { display: block; width: 100% !important; max-width: 100%; touch-action: none; cursor: crosshair; }
+
+    .controls { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
+    button {
+      padding: 12px 22px; border-radius: var(--radius-md); border: 1px solid var(--border-color);
+      background: #ffffff; color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    button:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); }
+    button:active { transform: translateY(0); }
+    button.primary { background: var(--primary); color: #ffffff; border-color: var(--primary); box-shadow: 0 4px 14px var(--primary-glow); }
+    button.primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); box-shadow: 0 6px 20px var(--primary-glow); }
+
+    .placeholder-section { margin-top: 32px; }
+    .placeholder-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 10px; }
+    .placeholder {
+      padding: 20px; border: 2px dashed #cbd5e1; border-radius: var(--radius-lg); min-height: 140px;
+      display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted); font-size: 14px; font-weight: 500; text-align: center;
+    }
+    .placeholder.active { background: #ffffff; border-style: solid; border-color: #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+    .placeholder img { max-width: 100%; max-height: 200px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+    hr { border: none; border-top: 1px solid rgba(226, 232, 240, 0.8); margin: 32px 0 20px 0; }
+    .footer-note { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+
+    @media (max-width: 768px) {
+      body { padding: 12px 8px; }
+      .app { padding: 20px 14px; }
+      h1 { font-size: 22px; }
+      .controls-card { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
+      .controls { flex-direction: column; gap: 10px; }
+      button { width: 100%; padding: 14px 18px; font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React & ReactDOM (UMD) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <script>
+    const { useRef, useState, useEffect } = React;
+
+    // Helper: Convert Base64 Data URL to Blob (Fixes Safari/Mobile Clipboard issues)
+    function dataURLtoBlob(dataurl) {
+      let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+      return new Blob([u8arr], {type: mime});
+    }
+
+    function SignaturePad({ width = 700, height = 200, strokeColor = '#0f172a', strokeWidth = 2, onSave }) {
+      const canvasRef = useRef(null);
+      const drawing = useRef(false);
+      const lastPoint = useRef(null);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        const displayWidth = rect.width || width;
+        
+        canvas.width = displayWidth * devicePixelRatio;
+        canvas.height = height * devicePixelRatio;
+        canvas.style.height = height + 'px';
+        
+        const ctx = canvas.getContext('2d');
+        ctx.scale(devicePixelRatio, devicePixelRatio);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        clearCanvas();
+      }, [width, height]);
+
+      function getCtx() {
+        return canvasRef.current.getContext('2d');
+      }
+
+      function pointerPos(e) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+        const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      }
+
+      function start(e) {
+        e.preventDefault();
+        drawing.current = true;
+        lastPoint.current = pointerPos(e);
+      }
+
+      function move(e) {
+        if (!drawing.current) return;
+        e.preventDefault();
+        const ctx = getCtx();
+        const p = pointerPos(e);
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = strokeWidth;
+        ctx.beginPath();
+        ctx.moveTo(lastPoint.current.x, lastPoint.current.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        lastPoint.current = p;
+      }
+
+      function end(e) {
+        if (!drawing.current) return;
+        drawing.current = false;
+        lastPoint.current = null;
+      }
+
+      function clearCanvas() {
+        const ctx = getCtx();
+        const rect = canvasRef.current.getBoundingClientRect();
+        // 🛠 FIX: Fill White background instead of keeping it transparent
+        // This ensures the PNG download is visible on dark mode viewers
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, rect.width, height);
+      }
+
+      function savePNG() {
+        const dataUrl = canvasRef.current.toDataURL('image/png');
+        if (onSave) onSave(dataUrl);
+      }
+
+      function downloadPNG() {
+        const dataUrl = canvasRef.current.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'signature.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      return React.createElement('div', null,
+        React.createElement('div', { className: 'canvas-container' },
+          React.createElement('div', { className: 'canvas-wrap' },
+            React.createElement('span', { className: 'canvas-hint' }, 'Sign Here'),
+            React.createElement('canvas', {
+              ref: canvasRef,
+              onMouseDown: start,
+              onMouseMove: move,
+              onMouseUp: end,
+              onMouseLeave: end,
+              onTouchStart: start,
+              onTouchMove: move,
+              onTouchEnd: end,
+              style: { background: 'white' }
+            })
+          )
+        ),
+        React.createElement('div', { className: 'controls' },
+          React.createElement('button', { onClick: clearCanvas }, '🧹 Clear Canvas'),
+          React.createElement('button', { className: 'primary', onClick: savePNG }, '⚡ Inject to Placeholder'),
+          React.createElement('button', { onClick: downloadPNG }, '📥 Download PNG')
+        )
+      );
+    }
+
+    function App() {
+      const [injected, setInjected] = useState(null);
+      const [w, setW] = useState(650);
+      const [h, setH] = useState(160);
+      const [strokeWidth, setStrokeWidth] = useState(3);
+      const [strokeColor, setStrokeColor] = useState('#0f172a');
+
+      function handleSave(dataUrl) {
+        setInjected(dataUrl);
+      }
+
+      async function handleCopyImage() {
+        if (!injected) { 
+          alert('No signature to copy — inject or draw first.'); 
+          return; 
+        }
+        try {
+          // 🛠 FIX: Sync conversion to Blob to respect clipboard API policies
+          const blob = dataURLtoBlob(injected);
+          const item = new ClipboardItem({ [blob.type]: blob });
+          await navigator.clipboard.write([item]);
+          alert('Signature image copied to clipboard!');
+        } catch (error) {
+          console.error(error);
+          alert('Copy failed: Your browser may block direct clipboard writing.');
+        }
+      }
+
+      function handleCopyHTML() {
+        if (!injected) { alert('No signature injected yet.'); return; }
+        const snippet = '<img src="' + injected + '" alt="signature" style="max-width:200px;">';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(snippet).then(() => alert('HTML snippet copied!'));
+        } else {
+          prompt('Copy this HTML snippet:', snippet);
+        }
+      }
+
+      return React.createElement('div', { className: 'app' },
+        React.createElement('div', { className: 'header' },
+          React.createElement('div', { className: 'badge' }, '✨ Adobe / DocuSign Suite'),
+          React.createElement('h1', null, 'Professional Signature Studio'),
+          React.createElement('p', { className: 'subtitle' }, 'Draw your digital signature with precision controls and inject it seamlessly.')
+        ),
+
+        React.createElement('div', { className: 'controls-card' },
+          React.createElement('div', { className: 'control-group' },
+            React.createElement('div', { className: 'control-header' }, React.createElement('label', null, 'Canvas Width')),
+            React.createElement('div', { className: 'input-wrapper' },
+              React.createElement('input', { type: 'number', value: w, min: 200, max: 1200, onChange: e => setW(Number(e.target.value)), className: 'sizeInput' }),
+              React.createElement('span', { style: { fontSize: '12px', color: '#64748b', fontWeight: 600 } }, 'px')
+            )
+          ),
+          React.createElement('div', { className: 'control-group' },
+            React.createElement('div', { className: 'control-header' }, React.createElement('label', null, 'Canvas Height')),
+            React.createElement('div', { className: 'input-wrapper' },
+              React.createElement('input', { type: 'number', value: h, min: 80, max: 600, onChange: e => setH(Number(e.target.value)), className: 'sizeInput' }),
+              React.createElement('span', { style: { fontSize: '12px', color: '#64748b', fontWeight: 600 } }, 'px')
+            )
+          ),
+          React.createElement('div', { className: 'control-group' },
+            React.createElement('div', { className: 'control-header' }, 
+              React.createElement('label', null, 'Stroke Size'),
+              React.createElement('span', { style: { fontSize: '12px', fontWeight: 700, color: '#2563eb' } }, strokeWidth + 'px')
+            ),
+            React.createElement('input', { type: 'range', min: 1, max: 8, value: strokeWidth, onChange: e => setStrokeWidth(Number(e.target.value)) })
+          ),
+          React.createElement('div', { className: 'control-group' },
+            React.createElement('div', { className: 'control-header' }, React.createElement('label', null, 'Ink Color')),
+            React.createElement('div', { className: 'color-picker-wrapper' },
+              React.createElement('input', { type: 'color', value: strokeColor, onChange: e => setStrokeColor(e.target.value) }),
+              React.createElement('span', { style: { fontSize: '13px', fontWeight: 600, color: '#475569' } }, strokeColor)
+            )
+          )
+        ),
+
+        React.createElement(SignaturePad, { width: w, height: h, strokeColor: strokeColor, strokeWidth: strokeWidth, onSave: handleSave }),
+
+        React.createElement('div', { className: 'placeholder-section' },
+          React.createElement('div', { className: 'placeholder-title' }, 'Signature Injection Placeholder'),
+          React.createElement('div', { className: 'placeholder ' + (injected ? 'active' : ''), id: 'signature-placeholder' },
+            injected
+              ? React.createElement('img', { src: injected, alt: 'Signature' })
+              : React.createElement('div', null, 'No signature injected yet. Draw above and click "Inject to Placeholder".')
+          )
+        ),
+
+        React.createElement('div', { className: 'controls', style: { marginTop: 20 } },
+          React.createElement('button', { onClick: handleCopyImage }, '📋 Copy Image to Clipboard'),
+          React.createElement('button', { onClick: handleCopyHTML }, '🏷️ Copy HTML Snippet')
+        ),
+
+        React.createElement('hr', null),
+        React.createElement('div', { className: 'footer-note' }, 
+          React.createElement('span', null, '💡'),
+          React.createElement('span', null, 'Tip: Configure stroke parameters prior to signing for optimal vector rendering quality.')
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
